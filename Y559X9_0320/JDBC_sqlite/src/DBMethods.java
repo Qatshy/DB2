@@ -4,7 +4,27 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 public class DBMethods {
+	
+	static DBMethods dbm = new DBMethods();
+		static ConsoleMethods cm = new ConsoleMethods();
+	
+	public void Change_tulaj_in_Auto(){
+		dbm.SM("Tulajdonos kódjának módosítása az Auto táblában ");
+		String rsz = cm.ReadData("Kérem az autó rendszámát: ");
+		int db = dbm.SelectCount("Auto", "rendszam = '"+rsz+"'");
+		if(db == 0) dbm.SM("Hibás rendszám");
+		else {
+			String ekod = cm.ReadData("Kérem a Tulajdonos kódjának az értékét: ");
+			db = dbm.SelectCount("Tulajdonos", "ekod = '"+ekod+"'");
+			if(db == 0) dbm.SM("Ehhez a kódhoz nem tartozik tulajdonos, így nem adható meg");
+			else {
+				String sqlp = "UPDATE Auto SET tulaj = "+ekod+" WHERE rendszam = '"+rsz+"'";
+				dbm.CommandExec(sqlp);
+			}
+		}
+	}
 
 	public int SelectCount(String table, String condition) {
 		int pc=-1;
@@ -63,7 +83,7 @@ public class DBMethods {
 				kor = rs.getInt("kor");
 				ar = rs.getInt("ar");
 				tulaj = rs.getInt("tulaj");
-				SM(rend+x+tip+x+szin+x+kor+x+ar);
+				SM(rend+x+tip+x+szin+x+kor+x+ar+x+tulaj);
 			}
 			rs.close();
 			
@@ -143,7 +163,7 @@ public class DBMethods {
 		Disconnect(conn);
 	}
 	
-	public void DeleteData(String rsz) {
+	public void DeleteDataAuto(String rsz) {
 		Connection conn = Connect();
 		String sqlp = "DELETE FROM Auto WHERE rendszam = '"+rsz+"'";
 		try {
@@ -157,10 +177,24 @@ public class DBMethods {
 		}
 		Disconnect(conn);
 	}
+	public void DeleteDataTulajdonos(String ekod) {
+		Connection conn = Connect();
+		String sqlp = "DELETE FROM Tulajdonos WHERE ekod = '"+ekod+"'";
+		try {
+			Statement s = conn.createStatement();
+			int db = s.executeUpdate(sqlp);
+			if (db==0) SM("A megadott ekódú tulaj nem létezik, nem törölhető");
+			else
+			SM("Törlődött a(z) "+ekod+" ekódú tulaj");
+		} catch (SQLException e) {
+			SM("JDBC DeleteData: "+e.getMessage());
+		}
+		Disconnect(conn);
+	}
 	
 	public void InsertAuto(String rsz, String tip, String szin, String kor, String ar, String tulaj) {
 		Connection conn = Connect();
-		String sqlp = "INSERT INTO Tulajdo Values('"+rsz+"', '"+tip+"', '"+szin+"', "+kor+", "+ar+", '"+tulaj+"')";
+		String sqlp = "INSERT INTO Tulajdonos Values('"+rsz+"', '"+tip+"', '"+szin+"', "+kor+", "+ar+", "+tulaj+"')";
 		try {
 			Statement s =conn.createStatement();
 			s.execute(sqlp);
@@ -251,10 +285,10 @@ public class DBMethods {
 	}
 	public Connection Connect() {
 		Connection conn = null;
-		String url = "jdbc:sqlite:C:/Users/y559x9/Downloads/Y559X9_0320/sqlite3/autodb";
+		String url = "jdbc:sqlite:C:/16miskolc/4/DB2/Y559X9_0320/sqlite3/autodb";
 		try {
 			conn = DriverManager.getConnection(url);
-			SM("Sikeres kapcsolódás");
+			//SM("Sikeres kapcsolódás");
 			return conn;
 		} catch(Exception ex) {
 			SM(ex.getMessage());
@@ -266,7 +300,7 @@ public class DBMethods {
 		if (conn != null) {
 			try {
 				conn.close();
-				SM("Sikeres lekapcsolódás");
+				//SM("Sikeres lekapcsolódás");
 			} catch(Exception ex) {
 				SM(ex.getMessage());
 			}
