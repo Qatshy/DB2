@@ -1,0 +1,101 @@
+CREATE OR REPLACE Procedure Circler (x in number, y in number) IS
+    Circumference number;
+    Area number;
+   BEgin
+   FOR i IN x..y LOOP
+   Circumference:= 2*i*PI();
+   Area:= POWER(i,2)*PI();
+   INSERT INTO Circles VALUES(i, Circumference, Area);
+   END LOOP;
+   DBMS_OUTPUT.PUT_LINE('A Circles Táblába bekerültek az adatok.');
+   END;
+
+Create table Auto (
+    ID number(4) PRIMARY KEY,
+    Rendszam char(6),
+    Tipus varchar2(30),
+    Szin varchar2(20),
+    Kor number(3),
+    Ar number(10),
+    Muszaki_erv date
+);
+
+BEGIN
+INSERT INTO Auto VALUES(1,'ABC123','Opel Corsa','Piros',6,3200000,'05.12.2024');
+INSERT INTO Auto VALUES(2,'QWJ612','Suzuki Alto','Kék',15,500000,'03.28.2024');
+INSERT INTO Auto VALUES(3,'PHD229','Skoda Scala','Fehér',1,6800000,'10.06.2025');
+INSERT INTO Auto VALUES(4,'PET220','Opel Astra','Fekete',3,4400000,'08.05.2024');
+INSERT INTO Auto VALUES(5,'RWE611','Ford Focus','Sárga',4,5300000,'01.15.2025');
+INSERT INTO Auto VALUES(6,'MNS418','Skoda Karoq','Kék',2,7000000,'02.28.2025');
+INSERT INTO Auto VALUES(7,'MUX312','Suzuki Swift','Piros',8,1600000,'10.23.2024');
+INSERT INTO Auto VALUES(8,'NCO927','Tesla Y','Fehér',3,26000000,'05.26.2024');
+END;
+
+CREATE TABLE Zoo (
+    ID int PRIMARY KEy,
+    Nev varchar2(30),
+    Fajta varchar2(30),
+    Szuletett date,
+    Suly int,
+    Ertek int,
+    Gondozo varchar2(30)
+);
+
+BEGIN
+INSERT INTO Zoo Values(1, 'Nelly', 'Elefánt', '05.09.1999', 3500, 4000000, 'Kis János');
+INSERT INTO Zoo Values(2, 'Molly', 'Majom', '04.24.2014', 40, 300000, 'Kis János');
+INSERT INTO Zoo Values(3, 'Decker', 'Elefánt', '02.07.2012', 2200, 3000000, 'Kis János');
+INSERT INTO Zoo Values(4, 'Dotty', 'Zsiráf', '05.09.1999', 890, 3000000, 'Kis János');
+INSERT INTO Zoo Values(5, 'Betsy', 'Teve', '03.23.2004', 1750, 4000000, 'Kis János');
+INSERT INTO Zoo Values(6, 'Lee', 'Tigris', '01.19.2017', 350, 800000, 'Kemény Péter');
+INSERT INTO Zoo Values(7, 'Hank', 'Zsiráf', '05.17.1992', 930, 2400000, 'Kis János');
+INSERT INTO Zoo Values(8, 'Foxi', 'Róka', '12.05.2020', 55, 250000, 'Kemény Péter');
+INSERT INTO Zoo Values(9, 'Neo', 'Pingvin', '05.18.2018', 40, 100000, 'Boldog Éva');
+INSERT INTO Zoo Values(10, 'Bruce', 'Cápa', '07.26.2006', 280, 1000000, 'Boldog Éva');
+INSERT INTO Zoo Values(11, 'Olivia', 'Krokodil', '10.20.2006', 450, 100000, 'Boldog Éva');
+INSERT INTO Zoo Values(12, 'Coca', 'Koala', '07.01.2016', 200, 10000000, 'Boldog Éva');
+INSERT INTO Zoo Values(13, 'Bruce', 'Majom', '11.29.2011', 40, 1000000, 'Boldog Éva');
+INSERT INTO Zoo Values(14, 'Benny', 'Medve', '10.05.2020', 80, 1500000, 'Kemény Péter');
+INSERT INTO Zoo Values(15, 'Brumi', 'Plüssmaci', '10.02.2016', 1, 12000, 'Ági baba');
+END;
+
+CREATE OR REPLACE Procedure Atlag AS x Auto.Ar%TYPE;
+BEGIn
+SELECT AVG(Ar) Into x from  Auto;
+DBMS_OUTPUT.PUT_Line(x);
+end;
+
+BEgin
+Atlag;
+END;
+
+CREATE OR REPLACE Procedure Atlag AS
+x Auto.Ar%TYPE;
+xhu varchar(30);
+BEGIn
+SELECT AVG(Ar) Into x from  Auto;
+xhu:= To_CHAR(x, '9G999G999G999');
+xhu:= LTRIM(REPLACE(xhu, ',', ' '));
+DBMS_OUTPUT.PUT_Line('Az autók átlagára: '||xhu||' Ft');
+end;
+
+CREATE OR REPLACE Function RendszamSzin(rszbe in char) return char AS
+x Auto.Szin%TYPE;
+begin
+select szin into x from AUto where Rendszam= rszbe;
+return x;
+end
+
+select RendszamSzin('PHD229') from Dual;
+
+CREATE OR REPLACE Function AtlagAr return int AS
+atlag int:= 0;
+begin
+select avg(Ar) into atlag From auto;
+return atlag;
+end;
+
+select AtlagAr from dual;
+
+
+
