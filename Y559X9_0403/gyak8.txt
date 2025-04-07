@@ -1,3 +1,45 @@
+CREATE OR REPLACE Function PI RETURN number AS
+Begin
+RETURN 3.141592654
+END;
+
+DECLARE
+Radius number:= 1;
+BEGIN
+Circumference:= 2*Radius*PI();
+DBMS_OUTPUT.PUT_LINE('Radius: '||'Radius||' Cricumference: '||Circumference);
+END;
+
+DECLARE
+Circumference number;
+x number:= 1;
+y number:= 5;
+BEGIN
+FOR i IN x..y LOOP
+Circumference:= 2*i*PI();
+DBMS_OUTPUT.PUT_LINE('Radius: '||'Radius||' Cricumference: '||Circumference);
+END LOOP;
+END;
+
+CREATE OR REPLACE Procedure Circler (X in number, y in number) IS Circumference number;
+BEGIN
+FOR i IN x..y LOOP
+Circumference:= 2/i/PI();
+DBMS_OUTPUT.PUT_LINE('Radius: '||i||' Circumference: '||Circumference);
+END LOOP;
+END;
+
+CREATE OR REPLACE Procedure Circler (x in number, y in number) IS
+    Circumference number;
+    Area number;
+   BEgin
+   FOR i IN x..y LOOP
+   Circumference:= 2*i*PI();
+   Area:= POWER(i,2)*PI();
+   DBMS_OUTPUT.PUT_LINE('Radius: '||i||'Circumference: '||Circumference||' Area: '||Area);
+END LOOP;
+   END;
+
 CREATE OR REPLACE Procedure Circler (x in number, y in number) IS
     Circumference number;
     Area number;
@@ -97,5 +139,48 @@ end;
 
 select AtlagAr from dual;
 
+create or replace Procedure ErtekNovel (x in number) IS
+BEGIN
+UPDATE ZOO SET ERTEK =  ERTEK * (1+(x/100));
+DBMS_OUTPUT.PUT_LINE('Az értékek '||x||'%-kal lettek növelve');
+END;
 
+create or replace Procedure ErtekCsokkent (x in number) IS
+BEGIN
+UPDATE ZOO SET ERTEK =  ERTEK / (1+(x/100));
+DBMS_OUTPUT.PUT_LINE('Az értékek '||x||'%-kal lettek csökkentve');
+END;
 
+CREATE OR REPLACE Function OsszSuly(gondozo in varchar2) return number AS
+x ZOO.SULY%TYPE;
+begin
+select SUM(SULY) into x from ZOO where GONDOZO = gondozo;
+return x;
+end;
+
+CREATE OR REPLACE Function OsszErtek(gondozo in varchar2) return number AS
+x ZOO.ERTEK%TYPE;
+begin
+select SUM(ERTEK) into x from ZOO where GONDOZO = gondozo;
+return x;
+end;
+
+CREATE OR REPLACE function Darab(gondozo in varchar2) return number AS x number;
+begin
+Select count(ID) into x from ZOO Where GONDOZO = gondozo;
+return x;
+end;
+
+CREATE OR REPLACE procedure Statisztika (gondozo in varchar2) IS
+darab number;
+osszsuly number;
+osszertek number;
+begin
+darab:= Darab(gondozo);
+osszsuly:= OsszSuly(gondozo);
+osszertek:= OsszErtek(gondozo);
+DBMS_OUTPUT.PUT_LINE('A Gondozó: '||gondozo);
+DBMS_OUTPUT.PUT_LINE('Állatok száma: '||darab);
+DBMS_OUTPUT.PUT_LINE('Állatok összsúlya: '||osszsuly);
+DBMS_OUTPUT.PUT_LINE('Állatok összertéke: '||osszertek);
+end;
