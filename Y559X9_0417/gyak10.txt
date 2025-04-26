@@ -1,0 +1,346 @@
+CREATE OR REPLACE PROCEDURE CurTry (szinbe char) as pc int;
+begin
+update Auto set Ar = Ar + 20000 where Szin = szinbe;
+IF sql%notfound THEN
+dbms_output.put_line('Nincs '||szinbe||' színű autó!');
+ELSIF sql%found then
+pc :=sql%rowcount;
+dbms_output.put_line(pc||' db '||szinbe||' az ára módosítva!');
+end if;
+end;
+
+begin
+CurTry('Kék');
+end;
+
+begin
+CurTry('Narancs');
+end;
+
+CREATE OR REPLACE PROCEDURE CurTry2 (szinbe char) as CURSOR cur is select Rendszam, Ar from Auto where szin= szinbe for update of Ar;
+cv cur%rowtype;
+pc int;
+begin
+open cur;
+loop
+fetch cur into cv;
+exit when cur%notfound;
+update Auto set Ar = cv.Ar -20000 where current of cur;
+end loop;
+pc := cur%rowcount;
+dbms_output.put_line(pc||' db '||szinbe||' autó ára módosítva!');
+close cur;
+end;
+
+begin
+CurTry2('Kék');
+end;
+
+CREATE OR REPLACE PROCEDURE CurTry2 (szinbe char) as CURSOR cur is select Rendszam, Ar from Auto where szin= szinbe for update of Ar;
+cv cur%rowtype;
+pc int;
+begin
+open cur;
+loop
+fetch cur into cv;
+exit when cur%notfound;
+update Auto set Ar = cv.Ar -20000 where current of cur;
+end loop;
+pc := cur%rowcount;
+if pc != 0 then
+dbms_output.put_line(pc||' db '||szinbe||' autó ára módosítva!');
+else
+dbms_output.put_line('Nincs '||szinbe||' színű autó!');
+end if;
+close cur;
+end;
+
+begin
+CurTry2('Narancs');
+end;
+
+CREATE OR REPLACE PROCEDURE CurTry3 (szinbe char) as CURSOR cur is select Rendszam, Ar from Auto where szin= szinbe for update of Ar;
+pc int;
+begin
+for cv in cur loop
+update Auto set Ar = cv.Ar - 20000 where current of cur;
+pc:= cur%rowcount;
+end loop;
+if pc != 0 then
+dbms_output.put_line(pc||' db '||szinbe||' autó ára módosítva!');
+else
+dbms_output.put_line('Nincs '||szinbe||' színű autó!');
+end if;
+end;
+
+CREATE OR REPLACE PROCEDURE TipusLista (tipusbe char) is CURSOR cur is select rendszam, tipus, ar from Auto where tipus like tipusbe||'%';
+c_var cur%rowtype;
+begin
+open cur;
+loop
+fetch cur into c_var;
+exit when cur%notfound;
+dbms_output.put_line('Rendszám: '||c_var.rendszam||' típus: '||c_var.tipus||' ár: '||c_var.ar);
+end loop;
+close cur;
+end;
+
+begin
+TipusLista('Skoda');
+end;
+
+CREATE OR REPLACE PROCEDURE MuszakiLegtovabb (db int) is CURSOR cur is select tipus, kor, ar, muszaki_erv from Auto order by muszaki_erv desc;
+i int:= 0;
+begin
+for c_var in cur loop
+if i < db then
+dbms_output.put_line(RTRIM(c_var.tipus)||', '||c_var.kor||' éves, '||c_var.ar||' Ft, műszaki lejár: '||c_var.muszaki_erv);
+i:= i+1;
+end if;
+end loop;
+end;
+
+begin
+MuszakiLegtovabb('3');
+end;
+
+CREATE OR REPLACE PROCEDURE ArListaDesc is
+begin
+for c_var in (select * from auto order by ar desc) loop
+dbms_output.put_line(pc||'. Rendszám: '|| c_var.rendszam||' ár: '||c_var.ar);
+ end loop;
+end;
+
+begin
+ArListaDesc;
+end;
+
+CREATE OR REPLACE PROCEDURE TipusAr (tipusbe in char) is arr int;
+begin
+select ar into arr from Auto where tipus like tipusbe||'%';
+dbms_output.put_line('Típus: '||tipusbe||' ára: '||arr);
+exception
+when no_data_found then
+dbms_output.put_line('Nem létező típus: '|| tipusbe);
+when too_many_rows then
+dbms_output.put_line('Több ilyen nevű típus is van: '|| tipusbe);
+end;
+
+begin
+TipusAr('Tesla')
+end;
+
+begin
+TipusAr('BMW');
+end;
+
+begin
+TipusAr('Opel');
+end;
+
+CREATE OR REPLACE PROCEDURE TorolRendszam (rszbe char) as
+db int;
+rsz_kivetel exception;
+begin
+select count(*) into db from Auto Where rendszam= rszbe;
+if db=0 then raise rsz_kivetel;
+else delete from Auto where rendszam= rszbe;
+end if;
+exception
+when rsz_kivetel then dbms_output.put_line('hibás rendszám: '||rszbe);
+end;
+
+begin
+TorolRendszam('xyz678');
+end;
+
+CREATE OR REPLACE PROCEDURE RendszamAr (rszbe in char) is
+arr int;
+begin
+select ar into arr from Auto where Rendszam = rszbe;
+dbms_output.put_line(rszbe|| 'rendszámú autó ára: '||arr);
+exception
+when no_data_found then
+dbms_output.put_line('Nem létező rendszám: '||rszbe);
+end;
+
+begin
+RendszamAr('wmh222');
+end;
+
+begin
+RendszamAr('NCO927');
+end;
+
+CREATE OR REPLACE PROCEDURE MuszakiModosit (rszbe in char, muszbe varchar) is
+musz_h exception;
+rsz varchar(20);
+mdate date;
+begin
+select Rendszam into rsz from Auto where Rendszam = rszbe;
+mdate:= to_date(muszbe, 'YYYY.MM.DD');
+if mdate < sysdate or mdate > sysdate+1095 then
+raise musz_h;
+end if;
+update Auto set Muszaki_erv= muszbe where Rendszam= rszbe;
+dbms_output.put_line(rszbe||' új műszaki érvényessége: '||muszbe);
+exception
+when no_data_found then
+dbms_output.put_line('Hibás (nem létező) rendszám: '||rszbe);
+when musz_h then
+dbms_output.put_line('Hibás dátum érték! Szabály: MA< Dátum <MA+3év - '||muszbe);
+when others then
+dbms_output.put_line('Hibás alakú dárum! Helyes alak: YYYY.MM.DD - '||muszbe);
+end;
+
+begin
+MuszakiModosit('NCO927', '2025.10.28');
+end;
+
+begin
+MuszakiModosit('XYZ666', '2025.10.28');
+end;
+
+begin
+MuszakiModosit('NCO927', '05/10/2025');
+end;
+
+begin
+MuszakiModosit('NCO927', '2026.12.25');
+end;
+
+CREATE OR REPLACE PROCEDURE Szamol (a int, muv varchar, b int) is
+ert float;
+jel varchar(1);
+hibas_muvelet exception;
+begin
+case muv
+when 'meg' then begin ert:= a + b; jel:= '+'; end;
+when 'bol' then begin ert:= a - b; jel:= '-'; end;
+when 'szor' then begin ert:= a * b; jel:= '*'; end;
+when 'oszt' then begin ert:= a / b; jel:= '/'; end;
+else raise hibas_muvelet;
+end case;
+dbms_output.put_line(a||jel||b||' = '||ert);
+exception
+when hibas_muvelet then
+dbms_output.put_line('Hibás művelet! Lehet: meg, bol, szor, oszt!');
+end;
+
+begin
+Szamol(3, 'oszt',5);
+end;
+
+begin
+Szamol(3, 'szer',5);
+end;
+
+CREATE OR REPLACE PROCEDURE CostsLessThan(value IN NUMBER) IS
+CURSOR cur IS
+SELECT NEV, FAJTA, ERTEK
+FROM ZOO
+WHERE ERTEK < value;
+nev ZOO.NEV%TYPE;
+fajta ZOO.FAJTA%TYPE;
+ertek ZOO.ERTEK%TYPE;
+BEGIN
+OPEN cur;
+LOOP
+FETCH cur INTO nev, fajta, ertek;
+EXIT WHEN cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('Név: '||nev||', Fajta: '||fajta||', Érték: '||ertek);
+END LOOP;
+CLOSE cur;
+END;
+
+BEGIN
+  CostsLessThan(50000);
+END;
+
+CREATE OR REPLACE PROCEDURE BornAfterDate(pdate IN date) IS
+CURSOR cur IS
+SELECT NEV, szuletett FROM ZOO WHERE szuletett > pdate;
+nev ZOO.NEV%TYPE;
+szuletett ZOO.szuletett%TYPE;
+BEGIN
+OPEN cur;
+LOOP
+FETCH cur INTO nev, szuletett;
+EXIT WHEN cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('Név: '||nev||', Született: '||TO_CHAR(szuletett, 'YYYY-MM-DD'));
+END LOOP;
+CLOSE cur;
+END;
+
+BEGIN
+  BornAfterDate(TO_DATE('2020-01-01', 'YYYY-MM-DD'));
+END;
+
+
+CREATE OR REPLACE PROCEDURE PetName(f varchar, g varchar) IS
+v_nev ZOO.NEV%TYPE;
+begin
+select nev into v_nev from Zoo where gondozo = g and fajta = f;
+ DBMS_OUTPUT.PUT_LINE('Állat neve: ' || v_nev);
+exception
+when no_data_found then
+dbms_output.put_line('Nem létezik: '||f||', ' ||g);
+when too_many_rows then
+dbms_output.put_line('Több ilyen nevű állat is is van: '||f||', ' ||g);
+end;
+
+BEGIN
+ PetName('Elefánt', 'Kis János');
+END;
+
+CREATE OR REPLACE PROCEDURE NumOfCarePet(g varchar) IS
+db int;
+hibba exception;
+begin
+select count(id) into db from Zoo where gondozo = g;
+if db = 0 then
+raise hibba;
+end if;
+ DBMS_OUTPUT.PUT_LINE(db||' Állat');
+exception
+when hibba then
+dbms_output.put_line('Nem létezik: '||g);
+end;
+
+CREATE OR REPLACE PROCEDURE PetNameLength IS
+CURSOR cur IS
+SELECT LENGTH(nev) AS hossz, COUNT(id) AS darab FROM Zoo GROUP BY LENGTH(nev) ORDER BY hossz;
+v_hossz NUMBER;
+v_darab NUMBER;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('Név statisztika:');
+OPEN cur; LOOP
+FETCH cur INTO v_hossz, v_darab;
+EXIT WHEN cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('Név hossza: ' || v_hossz || ' karakter, darabszáma: ' || v_darab);
+END LOOP;
+CLOSE cur;
+END;
+
+CREATE OR REPLACE PROCEDURE ModCare(id IN NUMBER, g IN VARCHAR2) IS
+db_id NUMBER;
+db_gondozo NUMBER;
+id_not_found EXCEPTION;
+gondozo_not_found EXCEPTION;
+BEGIN
+SELECT COUNT(id) INTO db_id FROM ZOO WHERE ID = id;
+IF db_id = 0 THEN
+RAISE id_not_found;
+END IF;
+SELECT COUNT(DISTINCT GONDOZO) INTO db_gondozo FROM ZOO WHERE GONDOZO = g;
+IF db_gondozo = 0 THEN
+RAISE gondozo_not_found;
+END IF;
+UPDATE ZOO SET GONDOZO = g WHERE ID = id;
+DBMS_OUTPUT.PUT_LINE('Sikeres módosítás!');
+EXCEPTION
+WHEN id_not_found THEN
+DBMS_OUTPUT.PUT_LINE('Hiba: Nem létezik ilyen ID: '||id);
+WHEN gondozo_not_found THEN
+DBMS_OUTPUT.PUT_LINE('Hiba: Nem létezik ilyen gondozó: '||g);
+END;
