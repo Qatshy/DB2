@@ -1,0 +1,246 @@
+CREATE OR REPLACE Procedure UjAuto (idbe in number, rszbe in char, tipbe in char, szinbe in char, korbe in number, arbe in number, muszbe in char) is
+BEGIN
+Insert INTO Auto Values (idbe, rszbe, tipbe, szinbe, korbe, arbe, muszbe);
+end;
+
+begin
+UjAuto(9, 'RSV616', 'Ford KA', 'Zöld', 16, 900000, '07.18.2023');
+end;
+
+CREATE OR REPLACE Procedure AutoModosit )idbe in number, szinbe in char) is
+begin
+update Auto set Szin = szinbe where ID = idbe;
+end;
+
+begin
+Automodosit (2, 'Narancs');
+end;
+
+create or replace Procedure UniAutoModosito (idbe in number, mezo in char, adat in varchar2) is
+plsql_p VARCHAR2(500);
+begin
+plsql_p:= 'update auto set '||mezo ||' = '''||adat||''' where id = '||idbe;
+execute immediate plsql_p;
+end;
+
+begin
+UniAutoModosito(2, 'szin', 'Barna');
+end;
+
+begin
+UniAutoModosito(2, 'ar', '1000000');
+end;
+
+create or replace Procedure AutoTorol (idbe in number) is
+begin
+delete from Auto where ID = idbe;
+end;
+
+begin
+AutoTorol(2);
+end;
+
+create or replace Procedure AutoMod2 (idbe in number, szinbe in char) is
+pc number;
+begin
+select count(*) into pc from Auto where ID= idbe;
+IF pc < 1 then
+dbms_output.put_line('Nem létezp Id!');
+else
+update AUTO SET Szin = szinbe where ID= idbe;
+dbms_output.put_line('Módosítás: OK!');
+END IF;
+end;
+
+begin
+AutoMod2(3, 'Fekete');
+end;
+
+create or replace Procedure AutoTorol2 (idbe in number) is
+pc number;
+begin
+select count(*) into pc from Auto where ID= idbe;
+IF pc < 1 then
+dbms_output.put_line('Nem létező Id!');
+else
+delete from AUTO where id = idbe;
+dbms_output.put_line('Módosítás: OK!');
+END IF;
+end;
+
+begin
+Autotorol2(1);
+end;
+
+create or replace Procedure AtlagAr2 is
+avgAr number;
+begin
+select avg(ar) into avgAr from Auto;
+dbms_output.put_line('Az autók átlagára: ' || avgAr);
+end;
+
+begin
+AtlagAr2;
+end;
+
+create or replace Procedure AdatKiir (idbe in number) is
+pc number;
+rsz varchar2(40);
+tip varchar2(40);
+arr int;
+begin
+select count(*) into pc from Auto where id= idbe;
+if pc < 1 then
+dbms_output.put_line('Nem létező ID: '||idbe);
+else
+select rendszam, tipus, ar INTO rsz, tip, arr from Auto where id= idbe;
+dbms_output.put_line('Rendszám: '||rsz||' típus: '||tip||' ár: '||arr);
+end if;
+end;
+
+create or replace Procedure Minosit (idbe in number) is
+arr int;
+begin
+select ar into arr from Auto where id= idbe;
+if arr < 1500000 then
+dbms_output.put_line('Ára: '||arr||' az autó olcsó!');
+elsif arr < 4000000 then
+dbms_output.put_line('Ára: '||arr||' az autó ára átlagos!');
+else
+dbms_output.put_line('Ára: '||arr||' az autó drága!');
+end if;
+end;
+
+create or replace Function SzinAtlagAr (szinbe in number) return int as
+atlag int:= 0;
+begin
+select avg(Ar) into atlag from Auto where Szin= szinbe;
+return atlag;
+end;
+
+create or replace Function SzinAtlagAr (szinbe in char) return int as
+atlag int := 0;
+begin
+select avg(Ar) into atlag from Auto where Szin= szinbe;
+return atlag;
+end;
+
+select SzinAtlagAr('Piros') from dual;
+
+create or replace Function AutoIdRendszam (idbe int) return varchar2 as
+ret varchar2(80):= 'Nem létező azonosító '||idbe;
+pc number;
+rsz varchar2(20);
+begin
+select count(*) into pc from Auto where Id= idbe;
+if pc > 0 then
+select rendszam into pc from Auto where Id= idbe;
+ret:= 'A(z) '||idbe||'ID-jű autó rendszáma: '||rsz;
+end if;
+return ret;
+end;
+
+create or replace Function VanSzinesAuto (szinbe char) return boolean as
+ret boolean:= false;
+db int:= 0;
+begin
+select count(*) into db from Auto where Szin = szinbe;
+if db > 0 then
+ret:= true;
+end if;
+return ret;
+end;
+
+select VanSzinesAuto('Piros') from dual;
+
+
+CREATE OR REPLACE Procedure NewPet (idbe in number, nbe in char, fbe in char, s1be in char, s2be in number, ebe in number, gbe in char) is
+BEGIN
+Insert INTO Zoo Values (idbe, nbe, fbe, TO_DATE(s1be, 'YYYY-MM-DD'), s2be, ebe, gbe);
+end;
+
+create or replace Procedure DelPet(idbe in number) as
+db number;
+begin
+select count(*) into db from Zoo;
+if db =0 then
+dbms_output.put_line('nincs ilyen idjű állat');
+else
+delete from Zoo where ID = idbe;
+dbms_output.put_line('állat törölve');
+end if;
+end;
+
+create or replace Procedure ModPet (td in number, fn in char, d in varchar2) is
+plsql_p VARCHAR2(500);
+begin
+plsql_p:= 'update zoo set '||fn ||' = '''||d||''' where id = '||td;
+execute immediate plsql_p;
+end;
+
+create or replace Procedure PetData (idbe in number) is
+id_d number;
+fajta_d varchar2(40);
+gondozo_d varchar2(40);
+db int;
+begin
+select count(*) into db from Zoo where id= idbe;
+if db < 1 then
+dbms_output.put_line('Nem létező ID: '||idbe);
+else
+select Nev, Fajta, Gondozo INTO id_d, fajta_d, gondozo_d from Zoo where id= idbe;
+dbms_output.put_line('id: '||id_d||' fajta: '||fajta_d||' gondozó: '||gondozo_d);
+end if;
+end;
+
+create or replace Procedure PetData (nevbe in char) is
+nev_d number;
+fajta_d varchar2(40);
+ertek_d number;
+db int;
+begin
+select count(*) into db from zoo where nev= nevbe;
+if db < 1 then
+dbms_output.put_line('Nem létező név: '||nevbe);
+else
+select Nev, Fajta, Ertek INTO nev_d, fajta_d, ertek_d from Zoo where Nev= nevbe;
+dbms_output.put_line('Név: '||nev_d||' fajta: '||fajta_d||' Érték: '||ertek_d);
+end if;
+end;
+
+create or replace Function ThereIsPetcalled (name char) return boolean as
+ret boolean:= false;
+db int:= 0;
+begin
+select count(*) into db from Zoo where Nev = name;
+if db > 0 then
+ret:= true;
+end if;
+return ret;
+end;
+
+create or replace Procedure CallThereIsPetcalled (name char) as
+bool boolean;
+begin
+bool := ThereIsPetCalled(name);
+if bool = true then
+dbms_output.put_line('Van '||name||' nevű kisállatunk');
+else
+dbms_output.put_line('Nincs '||name||' nevű kisállatunk');
+end if;
+end;
+
+create or replace Function Insurance (idbe in number) return float as
+arr int;
+fee float;
+begin
+select Ertek into arr from zoo where id= idbe;
+if arr < 1000000 then
+fee:= arr * 0.013;
+elsif arr < 3000000 then
+fee:= arr * 0.012;
+elsif arr > 3000000 then
+fee:= arr * 0.011;
+end if;
+return fee;
+end;
