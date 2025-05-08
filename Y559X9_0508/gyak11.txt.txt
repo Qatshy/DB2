@@ -1,0 +1,119 @@
+----------------------UjAuto----------------------
+create or replace procedure UjAuto (idbe in number, rszbe in char, tipbe in char, szinbe in char, korbe in number, arbe in number, muszbe in char) is
+begin
+insert into Auto values (idbe, rszbe, tipbe, szinbe, korbe, arbe, muszbe);
+end;
+
+----------------------AutoModosit----------------------
+create or replace procedure AutoModosit (idbe in number, szinbe in char) is
+begin
+update Auto set Szin = szinbe where ID = idbe;
+end;
+----------------------AutoTorol----------------------
+create or replace procedure AutoTorol (idbe in number) is
+begin
+delete from Auto where Id = idbe;
+end;
+----------------------Autocsomag body----------------------
+create or replace Package body AutoCsomag as
+procedure UjAuto (idbe in number, rszbe in char, tipbe in char, szinbe in char, korbe in number, arbe in number, muszbe in char) is
+begin
+insert into Auto values (idbe, rszbe, tipbe, szinbe, korbe, arbe, muszbe);
+end;
+procedure AutoModosit (idbe in number, szinbe in char) is
+begin
+update Auto set Szin = szinbe where ID = idbe;
+end;
+procedure AutoTorol (idbe in number) is
+begin
+delete from Auto where Id = idbe;
+end;
+end AutoCsomag;
+----------------------AutoCsomag----------------------
+create or replace Package AutoCsomag as
+procedure UjAuto (idbe in number, rszbe in char, tipbe in char, szinbe in char, korbe in number, arbe in number, muszbe in char);
+procedure AutoModosit (idbe in number, szinbe in char);
+procedure AutoTorol (idbe in number);
+end AutoCsomag;
+----------------------AutoCsomag----------------------
+begin 
+Autocsomag.ujAuto(12, 'ZTX215','Kia Ceed', 'Szürke', 3, 4900000, '03.15.2024');
+end;
+begin 
+Autocsomag.AutoModosit(12,'Ezüst');
+end;
+begin 
+Autocsomag.AutoTorol(12);
+end;
+----------------------NewPet----------------------
+create or replace procedure NewPet (idbe in number, n in char, f in char, s1 in char, s2 in number, e in number, g in char) is
+begin
+insert into Zoo values (idbe, n, f, s1, s2, e, g);
+end;
+----------------------DelPet----------------------
+create or replace procedure DelPet (idbe in number) is
+begin
+delete from Zoo where Id = idbe;
+end;
+----------------------ModPet----------------------
+create or replace procedure ModPet (idbe in number, g in char) is
+begin
+update Zoo set Gondozo = g where ID = idbe;
+end;
+----------------------ListPet----------------------
+CREATE OR REPLACE PROCEDURE ListPet IS
+BEGIN
+FOR pet IN (SELECT Nev, Gondozo FROM Zoo) LOOP
+DBMS_OUTPUT.PUT_LINE('Név: ' || pet.Nev || ' Gondozó: ' || pet.Gondozo);
+END LOOP;
+END;
+----------------------PetNumber----------------------
+CREATE OR REPLACE Function PetNumber return number as
+db number;
+BEGIN
+Select count(id) into db from Zoo;
+DBMS_OUTPUT.PUT_LINE('állatok száma: '||db);
+return db;
+END;
+----------------------PetNumber----------------------
+create or replace Package body ZooCsomag as
+procedure NewPet (idbe in number, n in char, f in char, s1 in char, s2 in number, e in number, g in char)
+procedure DelPet (idbe in number)
+procedure ModPet (idbe in number, g in char)
+PROCEDURE ListPet 
+Function PetNumber return number as
+db number;
+BEGIN
+Select count(id) into db from Zoo;
+DBMS_OUTPUT.PUT_LINE('állatok száma: '||db);
+return db;
+END;
+end ZooCsomag;
+----------------------PetNumber----------------------
+create or replace Package body ZooCsomag as
+procedure NewPet (idbe in number, n in char, f in char, s1 in char, s2 in number, e in number, g in char) is
+begin
+insert into Zoo values (idbe, n, f, s1, s2, e, g);
+end;
+procedure DelPet (idbe in number) is
+begin
+delete from Zoo where Id = idbe;
+end;
+procedure ModPet (idbe in number, g in char) is
+begin
+update Zoo set Gondozo = g where ID = idbe;
+end;
+PROCEDURE ListPet IS
+BEGIN
+FOR pet IN (SELECT Nev, Gondozo FROM Zoo) LOOP
+DBMS_OUTPUT.PUT_LINE('Név: ' || pet.Nev || ' Gondozó: ' || pet.Gondozo);
+END LOOP;
+END;
+Function PetNumber return number as
+db number;
+BEGIN
+Select count(id) into db from Zoo;
+DBMS_OUTPUT.PUT_LINE('állatok száma: '||db);
+return db;
+END;
+end ZooCsomag;
