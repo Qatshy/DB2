@@ -1,0 +1,4 @@
+ID	|	Név	|	Születés	|	Kor	|	Könyvek
+
+1	|	Mikuska József	|	2000.10.15	|	25	|	3
+2	|	Joe Biden	|	1942.11.20	|	83	|	2
